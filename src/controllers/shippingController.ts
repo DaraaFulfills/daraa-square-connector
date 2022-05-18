@@ -14,7 +14,7 @@ import {
     IRateRequestDetail,
     IItem,
     IRate
-} from "../../types"
+} from "../types"
 
 function increment(start:Date, min:number):void  {
     start.setMinutes(start.getMinutes()+min)

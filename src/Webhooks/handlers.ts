@@ -3,7 +3,7 @@ import {
     IOrder, 
     IInventoryItem,
     IDAPIManagedResponse
-} from "../../types"
+} from "../types"
   
 async function isManaged(item:IInventoryItem):Promise<IDAPIManagedResponse>{
     const {sku} = item;
