@@ -1,7 +1,3 @@
 dispatch:
   - url: "api.daraa.io/*"
     service: default
-  - url: "store.daraa.io/*"
-    service: web-store
-  - url: "shopify.daraa.io/*"
-    service: daraa-shopify-connector

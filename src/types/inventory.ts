@@ -8,10 +8,10 @@ export interface InventoryCountUpdated {
   export interface Data {
     type: string;
     id: string;
-    object: Object;
+    object: InventoryCountsObject;
   }
-  export interface Object {
-    inventory_counts?: (InventoryCountsEntity)[] | null;
+  export interface InventoryCountsObject {
+    inventory_counts: (InventoryCountsEntity)[];
   }
   export interface InventoryCountsEntity {
     calculated_at: string;
@@ -25,6 +25,7 @@ export interface InventoryCountUpdated {
   export interface CatalogObject {
     object: Object;
   }
+  
   export interface Object {
     type: string;
     id: string;
@@ -38,7 +39,7 @@ export interface InventoryCountUpdated {
     name: string;
     description: string;
     visibility: string;
-    variations?: (VariationsEntity)[] | null;
+    variations: (VariationsEntity)[];
     product_type: string;
     skip_modifier_screen: boolean;
     ecom_available: boolean;

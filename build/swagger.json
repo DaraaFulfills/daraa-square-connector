@@ -1,0 +1,546 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"InventoryCountsEntity": {
+				"properties": {
+					"calculated_at": {
+						"type": "string"
+					},
+					"catalog_object_id": {
+						"type": "string"
+					},
+					"catalog_object_type": {
+						"type": "string"
+					},
+					"location_id": {
+						"type": "string"
+					},
+					"quantity": {
+						"type": "string"
+					},
+					"state": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"calculated_at",
+					"catalog_object_id",
+					"catalog_object_type",
+					"location_id",
+					"quantity",
+					"state"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"InventoryCountsObject": {
+				"properties": {
+					"inventory_counts": {
+						"items": {
+							"$ref": "#/components/schemas/InventoryCountsEntity"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"inventory_counts"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Data": {
+				"properties": {
+					"type": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"object": {
+						"$ref": "#/components/schemas/InventoryCountsObject"
+					}
+				},
+				"required": [
+					"type",
+					"id",
+					"object"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"InventoryCountUpdated": {
+				"properties": {
+					"merchant_id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"event_id": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/Data"
+					}
+				},
+				"required": [
+					"merchant_id",
+					"type",
+					"event_id",
+					"created_at",
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ValidateErrorJSON": {
+				"properties": {
+					"message": {
+						"type": "string",
+						"enum": [
+							"Validation failed"
+						],
+						"nullable": false
+					},
+					"details": {
+						"properties": {},
+						"additionalProperties": {},
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"details"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_InventoryCountUpdated.merchant_id-or-type-or-event_id-or-created_at-or-data_": {
+				"properties": {
+					"merchant_id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"event_id": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/Data"
+					}
+				},
+				"required": [
+					"merchant_id",
+					"type",
+					"event_id",
+					"created_at",
+					"data"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"InventoryCountUpdatedParams": {
+				"$ref": "#/components/schemas/Pick_InventoryCountUpdated.merchant_id-or-type-or-event_id-or-created_at-or-data_"
+			},
+			"IRate": {
+				"properties": {
+					"service_name": {
+						"type": "string"
+					},
+					"service_code": {
+						"type": "string"
+					},
+					"total_price": {
+						"type": "number",
+						"format": "double"
+					},
+					"currency": {
+						"type": "string"
+					},
+					"min_delivery_date": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"max_delivery_date": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"time": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"service_name",
+					"service_code",
+					"total_price",
+					"currency",
+					"min_delivery_date",
+					"max_delivery_date"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IRateResponse": {
+				"properties": {
+					"rates": {
+						"items": {
+							"$ref": "#/components/schemas/IRate"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"rates"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IOrigin": {
+				"properties": {
+					"country": {
+						"type": "string"
+					},
+					"postal_code": {
+						"type": "string"
+					},
+					"province": {
+						"type": "string"
+					},
+					"city": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"address1": {
+						"type": "string"
+					},
+					"address2": {
+						"type": "string"
+					},
+					"address3": {
+						"type": "string"
+					},
+					"phone": {
+						"type": "string"
+					},
+					"fax": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"address_type": {
+						"type": "string"
+					},
+					"company_name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"country",
+					"postal_code",
+					"province",
+					"city",
+					"name",
+					"address1",
+					"address2",
+					"address3",
+					"phone",
+					"fax",
+					"email",
+					"address_type",
+					"company_name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IDestination": {
+				"properties": {
+					"country": {
+						"type": "string"
+					},
+					"postal_code": {
+						"type": "string"
+					},
+					"province": {
+						"type": "string"
+					},
+					"city": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"address1": {
+						"type": "string"
+					},
+					"address2": {
+						"type": "string"
+					},
+					"address3": {
+						"type": "string"
+					},
+					"phone": {
+						"type": "string"
+					},
+					"fax": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"address_type": {
+						"type": "string"
+					},
+					"company_name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"country",
+					"postal_code",
+					"province",
+					"city",
+					"name",
+					"address1",
+					"address2",
+					"address3",
+					"phone",
+					"fax",
+					"email",
+					"address_type",
+					"company_name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CountryHarmonizedSystemCodesEntity": {
+				"properties": {
+					"harmonized_system_code": {
+						"type": "string"
+					},
+					"country_code": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"harmonized_system_code",
+					"country_code"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IItem": {
+				"properties": {
+					"cost": {
+						"type": "string"
+					},
+					"country_code_of_origin": {
+						"type": "string"
+					},
+					"country_harmonized_system_codes": {
+						"items": {
+							"$ref": "#/components/schemas/CountryHarmonizedSystemCodesEntity"
+						},
+						"type": "array",
+						"nullable": true
+					},
+					"created_at": {
+						"type": "string"
+					},
+					"harmonized_system_code": {
+						"type": "number",
+						"format": "double"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"province_code_of_origin": {
+						"type": "string"
+					},
+					"sku": {
+						"type": "string"
+					},
+					"tracked": {
+						"type": "boolean"
+					},
+					"updated_at": {
+						"type": "string"
+					},
+					"requires_shipping": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"cost",
+					"country_code_of_origin",
+					"created_at",
+					"harmonized_system_code",
+					"id",
+					"province_code_of_origin",
+					"sku",
+					"tracked",
+					"updated_at",
+					"requires_shipping"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IRateRequestDetail": {
+				"properties": {
+					"origin": {
+						"$ref": "#/components/schemas/IOrigin"
+					},
+					"destination": {
+						"$ref": "#/components/schemas/IDestination"
+					},
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/IItem"
+						},
+						"type": "array"
+					},
+					"currency": {
+						"type": "number",
+						"format": "double"
+					},
+					"locale": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"origin",
+					"destination",
+					"items",
+					"currency",
+					"locale"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IRateRequest": {
+				"properties": {
+					"rate": {
+						"$ref": "#/components/schemas/IRateRequestDetail"
+					}
+				},
+				"required": [
+					"rate"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "daraa-square-connector",
+		"version": "0.0.1",
+		"description": "Daraa Square extension",
+		"license": {
+			"name": "UNLICENSED"
+		},
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/inventory_count_updated": {
+			"get": {
+				"operationId": "DoGet",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InventoryCountUpdated"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "DoPost",
+				"responses": {
+					"200": {
+						"description": "OK"
+					},
+					"422": {
+						"description": "Validation Failed",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ValidateErrorJSON"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/InventoryCountUpdatedParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/shipping": {
+			"post": {
+				"operationId": "HandleRateRequest",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IRateResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IRateRequest"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
