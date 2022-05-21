@@ -6,6 +6,7 @@ import express, {
 import bodyParser from "body-parser";
 import { RegisterRoutes } from "./routes";
 import { ValidateError } from "tsoa";
+import "isomorphic-fetch";
 
 export const app = express();
 

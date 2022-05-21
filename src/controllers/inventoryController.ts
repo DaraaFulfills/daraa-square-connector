@@ -24,12 +24,9 @@ interface ValidateErrorJSON {
 
 @Route("inventory_count_updated")
 export class InventoryController extends Controller {
-    @SuccessResponse("200","OK")
-    @Get()
-    public async doGet(): Promise<InventoryCountUpdated> {
-        console.log("InventoryController.get()")
-        this.setStatus(200);
-        return new InventoryService().get();
+    @Response(501, "Not Implemented")
+    public async doGet(): Promise<void> {
+        return;
     }
 
     @Response<ValidateErrorJSON>(422, "Validation Failed")

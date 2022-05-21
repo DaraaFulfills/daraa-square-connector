@@ -5,14 +5,17 @@ export interface InventoryCountUpdated {
     created_at: string;
     data: Data;
   }
+
   export interface Data {
     type: string;
     id: string;
-    object: InventoryCountsObject;
+    object: DataObject;
   }
-  export interface InventoryCountsObject {
-    inventory_counts: (InventoryCountsEntity)[];
+
+  export interface DataObject {
+    inventory_counts?: (InventoryCountsEntity)[] | null;
   }
+
   export interface InventoryCountsEntity {
     calculated_at: string;
     catalog_object_id: string;
@@ -23,54 +26,67 @@ export interface InventoryCountUpdated {
   }
   
   export interface CatalogObject {
-    object: Object;
+    object: CatObject;
   }
-  
-  export interface Object {
-    type: string;
-    id: string;
-    updated_at: string;
+
+  export interface CatObject {
+    type?: string | null;
+    id?: string | null;
+    updated_at?: string | null;
+    created_at?: string | null;
     version: number;
     is_deleted: boolean;
     present_at_all_locations: boolean;
     item_data: ItemData;
   }
   export interface ItemData {
-    name: string;
-    description: string;
-    visibility: string;
-    variations: (VariationsEntity)[];
-    product_type: string;
+    name?: string | null;
+    description?: string | null;
+    visibility?: string | null;
+    category_id?: string | null;
+    variations?: (VariationsEntity)[] | null;
+    product_type?: string | null;
     skip_modifier_screen: boolean;
-    ecom_available: boolean;
-    ecom_visibility: string;
+    ecom_visibility?: string | null;
   }
   export interface VariationsEntity {
-    type: string;
-    id: string;
-    updated_at: string;
+    type?: string | null;
+    id?: string | null;
+    updated_at?: string | null;
+    created_at?: string | null;
     version: number;
     is_deleted: boolean;
+    custom_attribute_values?: CAV_Keys | null;
     present_at_all_locations: boolean;
     item_variation_data: ItemVariationData;
   }
+  export interface CAV_Keys {
+    [key: string]: CAV_Values;
+  }
+  export interface CAV_Values {
+    name?: string | null;
+    string_value?: string | null;
+    custom_attribute_definition_id?: string | null;
+    type?: string | null;
+    key?: string | null;
+  }
   export interface ItemVariationData {
-    item_id: string;
-    name: string;
-    sku: string;
+    item_id?: string | null;
+    name?: string | null;
+    sku?: string | null;
     ordinal: number;
-    pricing_type: string;
+    pricing_type?: string | null;
     price_money: PriceMoney;
     location_overrides?: (LocationOverridesEntity)[] | null;
+    sellable: boolean;
+    stockable: boolean;
   }
   export interface PriceMoney {
     amount: number;
-    currency: string;
+    currency?: string | null;
   }
   export interface LocationOverridesEntity {
-    location_id: string;
+    location_id?: string | null;
     track_inventory: boolean;
-    inventory_alert_type: string;
-    inventory_alert_threshold: number;
   }
   
