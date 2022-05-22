@@ -25,6 +25,11 @@ export interface InventoryCountUpdated {
     state: string;
   }
   
+  export interface CatalogSearchObjects {
+    objects?: (CatalogObject)[] | null;
+    latest_time?: string;
+  }
+
   export interface CatalogObject {
     object: CatObject;
   }

@@ -1,26 +1,50 @@
 import {
         Client,
-        Environment
+        Environment,
+        SearchCatalogObjectsResponse
     } from "square"
 
 import { 
+        CatalogSearchObjects,
         DAPIInventoryUpdate 
     } from "../types/inventory"
+
+import { randomUUID } from 'crypto'
 
 export type DAPIInventoryUpdateParams = Pick<DAPIInventoryUpdate, "source" | "destination" | "quantity" | "sku">;
 
 export class DAPIInventoryService {
     public async sendInventoryUpdate(dapiInventoryUpdateParams : DAPIInventoryUpdateParams) : Promise<void> {
+        const dapiInventoryUpdate: DAPIInventoryUpdate = { ...dapiInventoryUpdateParams };
+
         const client = new Client({
             environment: Environment.Production,
             accessToken: 'EAAAERhl_tzEzVDA89p1apuHz7X53YPpKoSP7OYjZ7RyvAe0tJYkvfJy3pYuQvIZ',
         });
 
         try {
-            const response = await client.catalogApi.listCatalog(undefined, 'ITEM');
-            console.log(response.result);
-        } catch (error) {
+            const searchResponse = await client.catalogApi.searchCatalogObjects({
+                objectTypes: ['ITEM_VARIATION'], query: { textQuery: { keywords: [ dapiInventoryUpdate.sku + "" ] } }
+                });
+            const searchCatalogObjectsResponse: SearchCatalogObjectsResponse = searchResponse.result;
+            const catalogObjectId: string = searchCatalogObjectsResponse.objects![0].itemVariationData?.itemId + "";
+            console.log("CatObjId: " + catalogObjectId);
+
+            const updateResponse = await client.inventoryApi.batchChangeInventory({
+                idempotencyKey: randomUUID(),
+                changes: [
+                  {
+                    physicalCount: {
+                      catalogObjectId: catalogObjectId,
+                      catalogObjectType: 'ITEM_VARIATION',
+                      quantity: dapiInventoryUpdate.quantity
+                    }
+                  }
+                ],
+                ignoreUnchangedCounts: true
+              });            
+        } catch(error) {
             console.log(error);
-        };
+        }
     }
 }
