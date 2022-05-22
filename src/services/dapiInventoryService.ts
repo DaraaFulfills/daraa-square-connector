@@ -27,15 +27,14 @@ export class DAPIInventoryService {
                 objectTypes: ['ITEM_VARIATION'], query: { textQuery: { keywords: [ dapiInventoryUpdate.sku + "" ] } }
                 });
             const searchCatalogObjectsResponse: SearchCatalogObjectsResponse = searchResponse.result;
-            const catalogObjectId: string = searchCatalogObjectsResponse.objects![0].itemVariationData?.itemId + "";
-            console.log("CatObjId: " + catalogObjectId);
+            const catObjectId: string = searchCatalogObjectsResponse.objects![0].itemVariationData?.itemId + "";
 
             const updateResponse = await client.inventoryApi.batchChangeInventory({
                 idempotencyKey: randomUUID(),
                 changes: [
                   {
                     physicalCount: {
-                      catalogObjectId: catalogObjectId,
+                      catalogObjectId: catObjectId,
                       catalogObjectType: 'ITEM_VARIATION',
                       quantity: dapiInventoryUpdate.quantity
                     }
@@ -46,5 +45,6 @@ export class DAPIInventoryService {
         } catch(error) {
             console.log(error);
         }
+        return;
     }
 }
