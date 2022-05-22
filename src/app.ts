@@ -1,12 +1,15 @@
+import fs from 'fs';
 import express, {
     Response as ExResponse,
     Request as ExRequest,
     NextFunction,
   } from "express";
 import bodyParser from "body-parser";
-import { RegisterRoutes } from "./routes";
+import { RegisterRoutes } from "./routes/routes";
 import { ValidateError } from "tsoa";
 import "isomorphic-fetch";
+import * as swaggerUI from "swagger-ui-express";
+
 
 export const app = express();
 
@@ -19,6 +22,16 @@ app.use(
 app.use(bodyParser.json());
 
 RegisterRoutes(app);
+
+// Remember path is relative to root not src
+const swaggerJson = JSON.parse(
+    fs.readFileSync("./public/swagger.json", "utf-8")
+);
+app.use(
+    ["/openapi", "/docs", "/swagger"],
+    swaggerUI.serve,
+    swaggerUI.setup(swaggerJson)
+);
 
 app.use(function errorHandler(
     err: unknown,
@@ -41,3 +54,7 @@ app.use(function errorHandler(
   
     next();
   });
+
+  app.get('/', (req, res)=>{
+      res.send('Hello There');
+  })

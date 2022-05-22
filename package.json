@@ -9,7 +9,8 @@
     "dev_start": "nodemon dist/index.js",
     "gcp-build": "tsoa spec-and-routes && tsc -p .",
     "unpro": "tsc -p . && node dist/index.js",
-    "tsoa_build_and_run": "tsoa spec-and-routes && tsc -p . && nodemon dist/index.js"
+    "tsoa_build_and_run": "tsoa spec-and-routes && tsc -p . && nodemon dist/index.js",
+    "tbr": "tsoa spec-and-routes && tsc -p . && node ./dist/index.js"
   },
   "repository": {
     "type": "git",
