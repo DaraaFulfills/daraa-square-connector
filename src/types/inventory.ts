@@ -90,3 +90,9 @@ export interface InventoryCountUpdated {
     track_inventory: boolean;
   }
   
+export interface DAPIInventoryUpdate {
+    source?: string;
+    destination?: string;
+    quantity?: string;
+    sku?: string;
+}

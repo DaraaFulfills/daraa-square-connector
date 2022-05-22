@@ -30,6 +30,7 @@
     "isomorphic-fetch": "^3.0.0",
     "pg": "^8.7.3",
     "redis": "^4.1.0",
+    "square": "^19.0.0",
     "swagger-ui-express": "^4.3.0",
     "tsoa": "^4.0.0",
     "typeorm": "^0.3.6",
