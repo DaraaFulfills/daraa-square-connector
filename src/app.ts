@@ -137,7 +137,7 @@ app.get('/authorize', (req, res) => {
     console.log("Authorization Code:", authorizationCode);
     // TODO: Verify the state
     console.log("State is:", state);
-    
+
 
     if(authorizationCode){
         fetch("https://connect.squareupsandbox.com/oauth2/token", {
@@ -150,7 +150,7 @@ app.get('/authorize', (req, res) => {
             client_secret: process.env.SQ_APPLICATION_SECRET,
             code: authorizationCode,
             grant_type: "authorization_code",
-            redirect_uri: "http://localhost:3000/come-back-from-square",
+            redirect_uri: "https://4000-cs-261762283044-default.cs-us-central1-pits.cloudshell.dev/authorize/get-token",
             }),
             })
         .then((response) => response.json())

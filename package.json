@@ -19,6 +19,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
+    "@google-cloud/secret-manager": "^4.2.2",
     "@google-cloud/storage": "^5.18.2",
     "@shopify/shopify-api": "^3.0.1",
     "body-parser": "^1.20.0",
