@@ -29,7 +29,7 @@ export class DAPIInventoryService {
             accessToken: 'EAAAERhl_tzEzVDA89p1apuHz7X53YPpKoSP7OYjZ7RyvAe0tJYkvfJy3pYuQvIZ',
         });
 
-        if (this.isManaged(dapiInventoryUpdate.sku!)) {
+        if (await this.isManaged(dapiInventoryUpdate.sku!)) {
             try {
                 const searchResponse = await client.catalogApi.searchCatalogObjects({
                     objectTypes: ['ITEM_VARIATION'], query: { textQuery: { keywords: [ dapiInventoryUpdate.sku + "" ] } }
