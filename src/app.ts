@@ -24,6 +24,8 @@ const parent = "projects/70588820651/secrets/Square-Token";
 
 const frontendpath = process.env.FRONTEND_PATH;
 const squarepath = process.env.SQ_APP_PATH;
+const domain = frontendpath?.includes("daraa")? ".daraa.io" : "localhost";
+
 
 var corsOptions = {
   origin: frontendpath,
@@ -106,7 +108,7 @@ async function getFirstTokenName() {
   const [versions] = await client.listSecretVersions({
     parent: parent,
   });
-
+  console.log("Getting Token Name");
   // console.log(versions);
   // console.log(versions[0].version);
   console.log(await getToken(versions[0].name));
@@ -119,7 +121,7 @@ const getToken = async (versionName: string) => {
     const client = new SecretManagerServiceClient();
     const name = versionName;
     const [version] = await client.accessSecretVersion({ name });
-
+    console.log("Getting Token");
     const payload = version.payload.data.toString("utf8");
     console.log("Secret payload:", payload);
     return payload;
@@ -169,7 +171,7 @@ app.get("/logout", async (req, res) => {
       console.log(responseJSON);
 
       console.log("cookie cleared");
-      res.clearCookie("squareLoggedIn");
+      res.clearCookie("squareLoggedIn", { httpOnly: false, path: "/", domain: domain});
 
       if (responseJSON.success === true) {
         disableToken(token_name);
@@ -187,7 +189,7 @@ app.get("/logout", async (req, res) => {
 });
 
 function setCookie(res) {
-  res.cookie("squareLoggedIn", "true", { httpOnly: false, path: "/" });
+  res.cookie("squareLoggedIn", "true", { httpOnly: false, path: "/", domain: domain});
 }
 
 app.get("/authorize", (req, res) => {
