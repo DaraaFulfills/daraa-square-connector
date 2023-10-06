@@ -20,8 +20,17 @@ const cookieParser = require("cookie-parser");
 const { SecretManagerServiceClient } = require("@google-cloud/secret-manager");
 require("dotenv").config();
 const projectId = process.env.GOOGLE_PROJECT_ID;
+const parent = "projects/70588820651/secrets/Square-Token";
 
-app.use(cors());
+const frontendpath = process.env.FRONTEND_PATH;
+const squarepath = process.env.SQ_APP_PATH;
+
+var corsOptions = {
+  origin: frontendpath,
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 // Use body parser to read sent json payloads
@@ -67,63 +76,177 @@ app.use(function errorHandler(
   next();
 });
 
+async function secretExists() {
+  const client = new SecretManagerServiceClient();
+  const [versions] = await client.listSecretVersions({
+    parent: parent,
+  });
+
+  // versions.some((version) => {
+  //   console.log(`${version.state}`);
+  // });
+  return versions.some((version) => version.state === "ENABLED");
+}
+
 app.get("/", (req, res) => {
-  res.send(
-    "<button onclick=\"window.location.href='/authorize';\">Login With Square</button>"
+  // res.send("Already logged in");
+  secretExists().then((loggedIn) =>
+    !loggedIn
+      ? res.send(
+          "<button onclick=\"window.location.href='/authorize';\">Login With Square</button>"
+        )
+      : res.send("Already logged in")
   );
-  res.end();
+  // res.end();
 });
+
+// Revokes square oauth token and destroys from secret manager
+async function getFirstTokenName() {
+  const client = new SecretManagerServiceClient();
+  const [versions] = await client.listSecretVersions({
+    parent: parent,
+  });
+
+  // console.log(versions);
+  // console.log(versions[0].version);
+  console.log(await getToken(versions[0].name));
+  return versions[0].name;
+}
+
+//TODO: Refactor getToken and disableToken to not be copy pasted
+const getToken = async (versionName: string) => {
+  try {
+    const client = new SecretManagerServiceClient();
+    const name = versionName;
+    const [version] = await client.accessSecretVersion({ name });
+
+    const payload = version.payload.data.toString("utf8");
+    console.log("Secret payload:", payload);
+    return payload;
+  } catch (error) {
+    console.error("get secret", error);
+  }
+};
+
+const disableToken = async (versionName: string) => {
+  try {
+    const client = new SecretManagerServiceClient();
+    const name = versionName;
+    const [version] = await client.disableSecretVersion({ name });
+
+    console.log("Secret successfully disabled:", version.name);
+    return version.name;
+  } catch (error) {
+    console.error("disable secret", error);
+  }
+};
+
+//TODO This is just for the square qatest since no backend account database exists
+// This should be replaced by querying the user row and checking which rows have auth tokens existing already
+// Should be moved to core daraa api rather than square specific connector
+app.get("/logout", async (req, res) => {
+  // Create a client to interact with Secret Manager
+
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set("Content-Type", "application/json");
+  requestHeaders.set(
+    "Authorization",
+    `Client ${process.env.SQ_APPLICATION_SECRET}`
+  );
+  const token_name = await getFirstTokenName();
+  const acc_token = await getToken(token_name);
+
+  fetch(`${squarepath}/oauth2/revoke`, {
+    method: "POST",
+    headers: requestHeaders,
+    body: JSON.stringify({
+      client_id: process.env.SQ_APPLICATION_ID,
+      access_token: acc_token,
+    }),
+  })
+    .then((response) => response.json())
+    .then((responseJSON) => {
+      console.log(responseJSON);
+
+      console.log("cookie cleared");
+      res.clearCookie("squareLoggedIn");
+
+      if (responseJSON.success === true) {
+        disableToken(token_name);
+      }
+
+      // res.redirect("frontendpath/connect");
+      // destroyToken();
+      res.end();
+    })
+    .catch((error) => {
+      console.error("Error revoking token:", error);
+      res.status(500).send("Error obtaining access token");
+    });
+  // secretExists().then((result) => res.send(result));
+});
+
+function setCookie(res) {
+  res.cookie("squareLoggedIn", "true", { httpOnly: false, path: "/" });
+}
 
 app.get("/authorize", (req, res) => {
   //TODO: The front-end will send a request this route with a Square Login username & password
   // open up the square login in the backend
   //either it succeed or fail to login
+  secretExists().then((loggedIn) => {
+    if (loggedIn) {
+      setCookie(res);
+      return res.redirect(`${frontendpath}/square`);
+    } else {
+      const applicationId = process.env.SQ_APPLICATION_ID;
+      //TODO: change it to production url when deploy
+      // const connectHost = process.env.REACT_APP_SQ_ENVIRONMENT.toLowerCase() === "production"
+      //   ? "https://connect.squareup.com"
+      //   : "https://connect.squareupsandbox.com";
+      const connectHost = squarepath;
 
-  const applicationId = process.env.SQ_APPLICATION_ID;
+      //TODO: choose needed scope
+      const scopes = [
+        "ITEMS_READ",
+        "MERCHANT_PROFILE_READ",
+        //   "PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS",
+        //   "PAYMENTS_WRITE",
+        //   "PAYMENTS_READ",
+      ];
 
-  //TODO: change it to production url when deploy
-  // const connectHost = process.env.REACT_APP_SQ_ENVIRONMENT.toLowerCase() === "production"
-  //   ? "https://connect.squareup.com"
-  //   : "https://connect.squareupsandbox.com";
-  const connectHost = "https://connect.squareupsandbox.com";
+      const locale = "en-US"; // Adjust the locale as needed
 
-  //TODO: choose needed scope
-  const scopes = [
-    "ITEMS_READ",
-    "MERCHANT_PROFILE_READ",
-    //   "PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS",
-    //   "PAYMENTS_WRITE",
-    //   "PAYMENTS_READ",
-  ];
+      const session = "false";
 
-  const locale = "en-US"; // Adjust the locale as needed
+      //encrypt a CSRF token for the 'state' field
+      const state = "This is a myself testing";
+      const encryptedState = encryptToken(state);
 
-  const session = "false";
+      // Store the state in cookie for later validation
+      res.cookie("state", encryptedState);
 
-  //encrypt a CSRF token for the 'state' field
-  const state = "This is a myself testing";
-  const encryptedState = encryptToken(state);
+      if (applicationId) {
+        const authorizationUrl =
+          `${connectHost}/oauth2/authorize?` +
+          new URLSearchParams([
+            ["client_id", applicationId],
+            ["scope", scopes.join(" ")], // Join the array into a single string
+            ["session", session],
+            ["state", encryptedState],
+          ]);
 
-  // Store the state in cookie for later validation
-  res.cookie("state", encryptedState);
-
-  if (applicationId) {
-    const authorizationUrl =
-      `${connectHost}/oauth2/authorize?` +
-      new URLSearchParams([
-        ["client_id", applicationId],
-        ["scope", scopes.join(" ")], // Join the array into a single string
-        ["session", session],
-        ["state", encryptedState],
-      ]);
-
-    //direct user to square for authorization code
-    res.redirect(authorizationUrl);
-  } else {
-    console.error("square application id does not exist in the env file");
-    res.send("redirecting square page failed");
-  }
-  res.end();
+        //direct user to square for authorization code
+        console.log("Got here");
+        console.log(authorizationUrl);
+        res.redirect(authorizationUrl);
+      } else {
+        console.error("square application id does not exist in the env file");
+        res.send("redirecting square page failed");
+      }
+      res.end();
+    }
+  });
 });
 
 //square callback path
@@ -147,7 +270,7 @@ app.get("/authorize/auth-code", (req, res) => {
 
   //getting access token from square with verified authorization code
   if (authorizationCode) {
-    fetch("https://connect.squareupsandbox.com/oauth2/token", {
+    fetch(`${squarepath}/oauth2/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -172,7 +295,9 @@ app.get("/authorize/auth-code", (req, res) => {
         // Store access token in Google Secret Manager
         storeToken(responseJSON.access_token);
 
-        res.send("successfully authorized");
+        // res.send("successfully authorized");
+        setCookie(res);
+        res.redirect(`${frontendpath}/square`);
       })
       .catch((error) => {
         console.error("Error obtaining access token:", error);
@@ -213,44 +338,41 @@ const decryptToken = (encryptedToken: string) => {
 const storeToken = async (token: string) => {
   try {
     // Retrieve the service account email
-    const myself = await auth.getClient();
-    const email = myself.email;
-    console.log(`Service account email: ${email}`);
+    // const myself = await auth.getClient();
+    // const email = myself.email;
+    // console.log(`Service account email: ${email}`);
 
     // Set the project ID and secret ID
     const projectId = process.env.GOOGLE_PROJECT_ID; // Replace with project ID
     const secretId = process.env.SQ_APPLICATION_SECRET; // Replace with desired secret ID
 
-    // Construct the parent resource
-    const parent = `projects/${projectId}`;
+    // // Construct the parent resource
+    // const parent = `projects/${projectId}`;
 
     // Create a client to interact with Secret Manager
     const client = new SecretManagerServiceClient();
 
-    // Create the secret with automation replication
-    const [secret] = await client.createSecret({
-      parent: parent,
-      secretId: secretId,
-      secret: {
-        replication: {
-          automatic: {},
-        },
-      },
-    });
-    console.info(`Created secret: ${secret.name}`);
+    // // Create the secret with automation replication
+    // const [secret] = await client.createSecret({
+    //   parent: parent,
+    //   secretId: secretId,
+    //   secret: {
+    //     replication: {
+    //       automatic: {},
+    //     },
+    //   },
+    // });
+    // console.info(`Created secret: ${secret.name}`);
 
     // Add a version with a payload onto the secret.
     const [version] = await client.addSecretVersion({
-      parent: "projects/70588820651/secrets/Square-Token",
+      parent: parent,
       payload: {
         data: Buffer.from(token, "utf8"),
       },
     });
 
     console.info(`Added secret version ${version.name}`);
-
-    //how you access the token from secret manager
-    getToken(version.name);
   } catch (error) {
     console.error("Error creating secret:", error);
   }
@@ -261,24 +383,11 @@ const storeToken = async (token: string) => {
   return;
 };
 
-const getToken = async (versionName: string) => {
-  try {
-    const client = new SecretManagerServiceClient();
-    const name = versionName;
-    const [version] = await client.accessSecretVersion({ name });
-
-    const payload = version.payload.data.toString("utf8");
-    console.log("Secret payload:", payload);
-  } catch (error) {
-    console.error("get secret", error);
-  }
-};
-
 const refreshToken = async () => {
   const refreshToken = "YOUR_REFRESH_TOKEN";
   const clientId = process.env.SQ_APPLICATION_ID;
   const clientSecret = process.env.SQ_APPLICATION_SECRET;
-  const apiUrl = "https://connect.squareup.com/oauth2/token";
+  const apiUrl = `${squarepath}/oauth2/token`;
 
   try {
     const response = await fetch(apiUrl, {
