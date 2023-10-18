@@ -109,10 +109,14 @@ async function getFirstTokenName() {
     parent: parent,
   });
   console.log("Getting Token Name");
+
+  const first_name = versions.find((version) => version.state !== "DISABLED");
+  const valid_version = first_name? first_name : versions[0];
+
   // console.log(versions);
   // console.log(versions[0].version);
-  console.log(await getToken(versions[0].name));
-  return versions[0].name;
+  console.log(await getToken(valid_version.name));
+  return valid_version.name;
 }
 
 //TODO: Refactor getToken and disableToken to not be copy pasted
@@ -173,9 +177,8 @@ app.get("/logout", async (req, res) => {
       console.log("cookie cleared");
       res.clearCookie("squareLoggedIn", { httpOnly: false, path: "/", domain: domain});
 
-      if (responseJSON.success === true) {
-        disableToken(token_name);
-      }
+      //? May be issue with disabling token if endpoint fails
+      disableToken(token_name);
 
       // res.redirect("frontendpath/connect");
       // destroyToken();
@@ -212,9 +215,15 @@ app.get("/authorize", (req, res) => {
       const scopes = [
         "ITEMS_READ",
         "MERCHANT_PROFILE_READ",
+        "ORDERS_READ",
+        "INVENTORY_READ",
+        "PAYMENTS_READ",
+        // "ITEMS_WRITE",
+        // "ORDERS_WRITE",
+        // "MERCHANT_PROFILE_WRITE",
+        // "INVENTORY_WRITE",
         //   "PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS",
         //   "PAYMENTS_WRITE",
-        //   "PAYMENTS_READ",
       ];
 
       const locale = "en-US"; // Adjust the locale as needed
@@ -307,7 +316,7 @@ app.get("/authorize/auth-code", (req, res) => {
       });
   } else {
     res.send(
-      "<div>You deny access to Square</div><button onclick=\"window.location.href='/';\">Back to Home</button>"
+      `<div>Access to Square has been denied</div><button onclick=\"window.location.href='${frontendpath}/connect';\">Return to Daraa</button>`
     );
   }
 });
