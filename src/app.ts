@@ -10,6 +10,7 @@ import { ValidateError } from "tsoa";
 import "isomorphic-fetch";
 import * as swaggerUI from "swagger-ui-express";
 import * as crypto from "crypto";
+import { getToken, getFirstTokenName, disableToken } from "./helpers/tokenManager";
 
 const { auth } = require("google-auth-library");
 
@@ -102,50 +103,6 @@ app.get("/", (req, res) => {
   // res.end();
 });
 
-// Revokes square oauth token and destroys from secret manager
-async function getFirstTokenName() {
-  const client = new SecretManagerServiceClient();
-  const [versions] = await client.listSecretVersions({
-    parent: parent,
-  });
-  console.log("Getting Token Name");
-
-  const first_name = versions.find((version) => version.state !== "DISABLED");
-  const valid_version = first_name? first_name : versions[0];
-
-  // console.log(versions);
-  // console.log(versions[0].version);
-  console.log(await getToken(valid_version.name));
-  return valid_version.name;
-}
-
-//TODO: Refactor getToken and disableToken to not be copy pasted
-const getToken = async (versionName: string) => {
-  try {
-    const client = new SecretManagerServiceClient();
-    const name = versionName;
-    const [version] = await client.accessSecretVersion({ name });
-    console.log("Getting Token");
-    const payload = version.payload.data.toString("utf8");
-    console.log("Secret payload:", payload);
-    return payload;
-  } catch (error) {
-    console.error("get secret", error);
-  }
-};
-
-const disableToken = async (versionName: string) => {
-  try {
-    const client = new SecretManagerServiceClient();
-    const name = versionName;
-    const [version] = await client.disableSecretVersion({ name });
-
-    console.log("Secret successfully disabled:", version.name);
-    return version.name;
-  } catch (error) {
-    console.error("disable secret", error);
-  }
-};
 
 //TODO This is just for the square qatest since no backend account database exists
 // This should be replaced by querying the user row and checking which rows have auth tokens existing already

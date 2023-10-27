@@ -3,11 +3,18 @@ import {
     InventoryCountsEntity,
     InventoryCountUpdated,
     ItemVariationData
-  } from "../types/inventory"
+  } from "../types/inventory";
+import {
+    Client,
+    Environment,
+    SearchCatalogObjectsResponse
+} from "square";
 import { SKU_Post } from "../types/dapi";
 import { textChangeRangeIsUnchanged, isConstructorDeclaration } from "typescript";
 import { debug } from "util";
+import { getToken, getFirstTokenName } from "../helpers/tokenManager";
 
+const SQUARE_URL = process.env.SQ_APP_PATH;
 export type InventoryCountUpdatedParams = Pick<InventoryCountUpdated, "merchant_id" | "type" | "event_id"| "created_at" | "data">;
 export type CatalogObjectParams = Pick<CatalogObject, "object">;
 
@@ -59,11 +66,27 @@ export class InventoryService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 'Authorization': 'Bearer EAAAENPC3g1ERDDT_eRtzmI_tb5L6cBxzvzWg3TG1eEHEKpQ5JxjFLoSVwV5ZjG9'
+                //TODO: Replace this with actual auth
             },
             redirect: 'follow', 
             referrerPolicy: 'no-referrer', 
             body: JSON.stringify(skuPost)
         });
         //console.debug("DAPI Response: %o", dapiResponse);
+    }
+
+    public async getInventoryCatalog(){
+        const environment: string = (process.env.NODE_ENV === "production")? Environment.Production : Environment.Sandbox;
+        const squareToken = await getToken(await getFirstTokenName());
+
+        const client = new Client({
+            environment: Environment.Production,
+            accessToken: squareToken,
+        });
+        
+        const response = await client.catalogApi.listCatalog();
+
+        // const catalog_url: string = `${SQUARE_URL}/v2/catalog/object`
+        return response;
     }
 }

@@ -20,9 +20,9 @@ export async function setToken(shop:string, token:string):Promise<boolean>{
     return true;
 }
 
-export async function getToken(shop:string):Promise<string>{
-    await redisClient.connect();
-    const value = await redisClient.get(shop);
-    return value;
-}
+// export async function getToken(shop:string):Promise<string>{
+//     await redisClient.connect();
+//     const value = await redisClient.get(shop);
+//     return value;
+// }
 

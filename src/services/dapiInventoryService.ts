@@ -2,14 +2,14 @@ import {
         Client,
         Environment,
         SearchCatalogObjectsResponse
-    } from "square"
+    } from "square";
 
 import { 
         CatalogSearchObjects,
         DAPIInventoryUpdate 
-    } from "../types/inventory"
+    } from "../types/inventory";
 
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'crypto';
 
 export type DAPIInventoryUpdateParams = Pick<DAPIInventoryUpdate, "source" | "destination" | "quantity" | "sku">;
 
@@ -24,6 +24,7 @@ export class DAPIInventoryService {
     public async sendInventoryUpdate(dapiInventoryUpdateParams : DAPIInventoryUpdateParams) : Promise<void> {
         const dapiInventoryUpdate: DAPIInventoryUpdate = { ...dapiInventoryUpdateParams };
 
+        //TODO: remove hardcoded token
         const client = new Client({
             environment: Environment.Production,
             accessToken: 'EAAAERhl_tzEzVDA89p1apuHz7X53YPpKoSP7OYjZ7RyvAe0tJYkvfJy3pYuQvIZ',
