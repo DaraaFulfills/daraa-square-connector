@@ -24,13 +24,7 @@ interface ValidateErrorJSON {
     details: { [name: string]: unknown };
 }
 
-const toObject = (input): string => {
-    return JSON.parse(JSON.stringify(input, (key, value) =>
-        typeof value === 'bigint'
-            ? value.toString()
-            : value // return everything else unchanged
-    ));
-}
+
 
 @Route("inventory_count_updated")
 export class InventoryController extends Controller {
@@ -39,7 +33,7 @@ export class InventoryController extends Controller {
     @Get()
     public async doGet(): Promise<string> {
         this.setStatus(200);
-        return toObject((await new InventoryService().getInventoryCatalog()).result);
+        return new InventoryService().getInventoryCatalog();
     }
 
     @Response<ValidateErrorJSON>(422, "Validation Failed")

@@ -5,3 +5,4 @@ public/
 src/routes
 env_variables.yaml
 .env*
+.vscode
