@@ -8,10 +8,7 @@ import {
     Get,
 } from "tsoa";
 
-import {
-    InventoryCountUpdatedParams,
-    InventoryService,
-} from "../services/inventoryService";
+import { DemoService, LocationMap } from "../services/demoService";
 
 import { ApiResponse, ListCatalogResponse } from "square";
 
@@ -22,24 +19,21 @@ interface ValidateErrorJSON {
     details: { [name: string]: unknown };
 }
 
-@Route("inventory_count_updated")
-export class InventoryController extends Controller {
-    @Response<ValidateErrorJSON>(501, "Not Implemented")
+@Route("account_digest")
+export class DemoController extends Controller {
+    @Response<ValidateErrorJSON>(422, "Validation Failed")
     @SuccessResponse("200", "OK")
     @Get()
-    public async doGet(): Promise<void> {
-        this.setStatus(501);
-        return;
+    public async doGet(): Promise<LocationMap[]> {
+        this.setStatus(200);
+        return new DemoService().fetchLocations();
     }
 
     @Response<ValidateErrorJSON>(422, "Validation Failed")
     @SuccessResponse("200", "OK")
     @Post()
-    public async doPost(
-        @Body() requestBody: InventoryCountUpdatedParams
-    ): Promise<void> {
+    public async doPost(@Body() requestBody: string[]): Promise<string> {
         this.setStatus(200);
-        new InventoryService().inventoryCountUpdate(requestBody);
-        return;
+        return new DemoService().createDigest(requestBody);
     }
 }

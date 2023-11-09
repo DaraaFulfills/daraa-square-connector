@@ -20,16 +20,6 @@ export type InventoryCountUpdatedParams = Pick<
 >;
 export type CatalogObjectParams = Pick<CatalogObject, "object">;
 
-const toObject = (input): string => {
-    return JSON.parse(
-        JSON.stringify(
-            input,
-            (key, value) =>
-                typeof value === "bigint" ? value.toString() : value // return everything else unchanged
-        )
-    );
-};
-
 export class InventoryService {
     public async inventoryCountUpdate(
         inventoryCountUpdatedParams: InventoryCountUpdatedParams
@@ -94,46 +84,5 @@ export class InventoryService {
         //console.debug("DAPI Response: %o", dapiResponse);
     }
 
-    public async getInventoryCatalog(): Promise<string> {
-        const environment: string =
-            process.env.NODE_ENV === "production"
-                ? Environment.Production
-                : Environment.Sandbox;
-        const squareToken = await getToken(await getFirstTokenName());
-
-        const client = new Client({
-            environment: Environment.Production,
-            accessToken: squareToken,
-        });
-
-        const catalog_response = await client.catalogApi.listCatalog();
-        const merchant_response = await client.merchantsApi.listMerchants();
-        const payment_response = await client.paymentsApi.listPayments();
-        const inventory_response =
-            await client.inventoryApi.batchRetrieveInventoryCounts({});
-
-        // This only applies for one main location --> TODO: Would need to add all locations
-        const main_location_id = merchant_response.result.merchant
-            ? merchant_response.result.merchant[0].mainLocationId
-            : undefined;
-
-        const orders_response = main_location_id
-            ? await client.ordersApi.searchOrders({
-                  locationIds: [main_location_id],
-              })
-            : undefined;
-
-        const final_json = {
-            objects: catalog_response.result.objects,
-            merchant: merchant_response.result.merchant,
-            payments: payment_response.result.payments,
-            counts: inventory_response.result.counts,
-
-            // TODO: Do we want full orders or just entries
-            order_response: orders_response?.result.orderEntries,
-        };
-
-        // const catalog_url: string = `${SQUARE_URL}/v2/catalog/object`
-        return toObject(final_json);
-    }
+    public async getInventoryCatalog() {}
 }
