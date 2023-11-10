@@ -10,7 +10,8 @@
     "gcp-build": "tsoa spec-and-routes && tsc -p .",
     "unpro": "tsc -p . && node dist/index.js",
     "tsoa_build_and_run": "tsoa spec-and-routes && tsc -p . && nodemon dist/index.js",
-    "tbr": "tsoa spec-and-routes && tsc -p . && node ./dist/index.js"
+    "tbr": "tsoa spec-and-routes && tsc -p . && node ./dist/index.js",
+    "dev": "export NODE_ENV=development && yarn run tsoa_build_and_run"
   },
   "repository": {
     "type": "git",

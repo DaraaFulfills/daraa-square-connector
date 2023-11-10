@@ -27,7 +27,13 @@ require("dotenv").config();
 const projectId = process.env.GOOGLE_PROJECT_ID;
 const parent = "projects/70588820651/secrets/Square-Token";
 
-const frontendpath = process.env.FRONTEND_PATH;
+const DEBUG = process.env.NODE_ENV === "development";
+const frontendpath = DEBUG
+    ? "http://localhost:3000"
+    : process.env.FRONTEND_PATH;
+
+console.log(DEBUG);
+
 const squarepath = process.env.SQ_APP_PATH;
 const domain = frontendpath?.includes("daraa") ? ".daraa.io" : "localhost";
 

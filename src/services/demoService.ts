@@ -28,7 +28,7 @@ export class DemoService {
 
     // Setup Square Client
     constructor() {
-        this.createClient();
+        // this.createClient();
     }
 
     private async createClient() {
@@ -47,6 +47,7 @@ export class DemoService {
     }
 
     public async fetchLocations(): Promise<LocationMap[]> {
+        await this.createClient();
         const response = await this.client.locationsApi.listLocations();
         const payload = response.result.locations?.map((location) => {
             return {
@@ -58,6 +59,7 @@ export class DemoService {
     }
 
     public async createDigest(locations: string[]): Promise<string> {
+        await this.createClient();
         const catalog_response = (
             await this.client.catalogApi.listCatalog(undefined, "ITEM")
         ).result.objects;
